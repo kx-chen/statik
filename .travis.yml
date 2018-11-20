@@ -9,6 +9,12 @@ language: python
     apt:
       packages:
         - libgnutls-dev
+
+stages:
+  - test
+  - name: deploy
+    if: type != pull_request
+
 jobs:
   include:
     - python: 2.7
@@ -16,6 +22,18 @@ jobs:
     - python: 3.6
     - <<: *xenial-mixin
       python: 3.7
+
+    - stage: test
+    - install:
+        - "pip install -r requirements.txt"
+    - script:
+        - "python -m unittest discover"
+
+    - stage: deploy
+    - install:
+      - "pip install -r requirements.txt"
+    - script:
+      - "python -m statik.cmdline --upload=netlify --netlify-site-id=47df04ea-4f33-41a5-955e-3f48d6680b9d -p examples/blog"
 
 install:
   - "pip install -r requirements.txt"
